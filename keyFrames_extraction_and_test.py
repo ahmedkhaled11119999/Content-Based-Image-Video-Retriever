@@ -45,5 +45,5 @@ def Test_extract_key_frames(video_path):
     for i in range(len(key_frames)):
         cv.imshow('key frame ' + str(i), key_frames[i])
         cv.waitKey(500)
-video_path='Video.mp4'
+video_path='Video.mp4' #path of video
 Test_extract_key_frames(video_path)
