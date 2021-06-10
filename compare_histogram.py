@@ -14,6 +14,44 @@ def normalize(input_array, size):
     return output_array
 
 
+def calc_hist_2(image):
+    hsv_base = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    h_bins = 50
+    s_bins = 60
+    histSize = [h_bins, s_bins]
+    channels = [0, 1]
+    h_ranges = [0, 180]
+    s_ranges = [0, 256]
+    ranges = h_ranges + s_ranges  # concat lists
+    hist = cv2.calcHist([hsv_base], channels, None, histSize, ranges, accumulate=False)
+    cv2.normalize(hist, hist, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
+
+    hist = hist
+    l = hist.tolist()
+    # l = hist
+
+    # print(len(l))
+    return l
+
+
+def hist_comp_2(hist1, hist2):
+    # str_list = ['1', '2', '3']
+    # int_list = map(int, str_list)
+    # print
+    # int_list  # [1, 2, 3]
+    #
+
+    hist1 = np.array(hist1, dtype=np.float32)
+
+    print(hist1.ctypes)
+    # hist1 = cv2.convertMaps(hist1, hist1, cv2.CV_32F)
+    # hist1 = hist1.convertTo(cv2.CV_32F, 0, 1)
+    print(hist1.shape)
+    hist2 = np.array(hist2, dtype=np.float32)
+    # hist2 = cv2.convertMaps(hist2, hist2, cv2.CV_32F)
+    return cv2.compareHist(hist1, hist2, cv2.HISTCMP_CORREL)
+
+
 def calculate_histogram(image):
     """
     take an opencv image and calculate its histogram and the normalize it
@@ -25,6 +63,9 @@ def calculate_histogram(image):
         [[0.2], [0.48]] ...  # R channel
     ]
     """
+
+    # output = np.zeros(256, dtype=np.float64)
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     output = np.zeros(256, dtype=np.float64)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -52,8 +93,7 @@ def calculate_histogram(image):
     # # plt.plot(cv_normalize)
     # plt.show()
 
-
-    print(cv_normalize.shape)
+    # print(cv_normalize.shape)
     # return our_normalize
     return cv_normalize
 
@@ -65,30 +105,42 @@ def histogram_compare(histogram1, histogram2):
         :param histogram2:
         :return:
         """
-    print(histogram1.shape)
-    print(histogram2.shape)
+    # print(histogram1.shape)
+    # print(histogram2.shape)
     # result = cv2.compareHist(histogram1, histogram2, cv2.HISTCMP_INTERSECT)
     result = cv2.compareHist(histogram1, histogram2, cv2.HISTCMP_CORREL)
-    print(result)
+    # print(result)
     return result
-    # return (result / 50388) * 100
 
 
 if __name__ == '__main__':
-    image = cv2.imread("DB/storage/05.jpg")
-    image2 = cv2.imread("DB/storage/1.1.jpg")
+    image = cv2.imread("DB/storage/07.png")
+    image2 = cv2.imread("DB/storage/06.png")
 
-
-    histogram1 = calculate_histogram(image)
-
-
-
-
-    histogram2 = calculate_histogram(image2)
+    # histogram1 = calculate_histogram(image)
     #
-    # # print(histogram1.shape)
-    # # print(histogram2.shape)
     #
-    # # calculate_histogram(image)
     #
-    print(histogram_compare(histogram1, histogram2))
+    #
+    # histogram2 = calculate_histogram(image2)
+    # #
+    # # # print(histogram1.shape)
+    # # # print(histogram2.shape)
+    # #
+    # # # calculate_histogram(image)
+    # #
+    # print(histogram_compare(histogram1, histogram2))
+
+    hist1 = calc_hist_2(image)
+    hist2 = calc_hist_2(image2)
+
+    s = hist_comp_2(hist1, hist2)
+
+    print(s)
+
+    hist1 = calculate_histogram(image)
+    hist2 = calculate_histogram(image2)
+
+    s = histogram_compare(hist1, hist2)
+
+    print(s)
