@@ -10,7 +10,8 @@ import os
 
 db = DB()
 
-base_path = 'DB/storage'
+images_base_path = 'DB/storage/images'
+videos_base_path = 'DB/storage/videos'
 
 
 def color_compare(color1, color2):
@@ -82,7 +83,6 @@ def compare_two_images(image1_features, image2_features):
         'common_objects': list(common_objects)
     }
 
-
 def search_by_image(path):
     """
     Take an image and calculate the image features, and compare the precalculated images features in the db and return
@@ -90,19 +90,20 @@ def search_by_image(path):
     :param path:
     :return:
     """
+    return search_by_image_2(cv.imread(path))
+
+
+def search_by_image_2(image):
     similarity = []
-    query_image_feature = get_image_features(path)
+    query_image_feature = calculate_image_features(image)
     # images_features = db.get_all({'$not': {'name': None}})
-    images_features = db.get_all({})
+    images_features = db.get_all_images({})
     for image_features in images_features:
         similar_image = compare_two_images(query_image_feature, image_features)
         similar_image['name'] = image_features['name']
         similar_image['_id'] = image_features['_id']
-
-
         similarity.append(similar_image)
     return similarity
-
 
 def sort_by(similarity, feature):
     if feature == 'common_objects':
@@ -122,23 +123,80 @@ def add_images_dataset(dir_path):
         features['name'] = entry.name
         _, ext = os.path.splitext(entry.name)
         inserted = db.insert_image(features)
-        shutil.copy(entry.path, os.path.join(base_path, f'{inserted.inserted_id}.{ext}'))
+        shutil.copy(entry.path, os.path.join(images_base_path, f'{inserted.inserted_id}.{ext}'))
+
+
+# def search_by_video()
+def calculate_video_features(path):
+    """
+    video data_structure:
+    {
+        path: '',
+        frames: [
+            {
+                number: 1,
+                'avg_color': 13
+                .
+                .
+            },
+            {
+                number: 2,
+                'avg_color': 13
+                .
+                .
+            }
+        ]
+    }
+    :param path:
+    :return:
+    """
+    key_frames = extract_key_frames(path)
+    frames_features = []
+    print(f'{len(key_frames)} key frames extracted')
+    for i, key_frame in enumerate(key_frames):
+        print(f'processing key frame: {i + 1} of {len(key_frames)}')
+        frame_features = calculate_image_features(key_frame)
+        frames_features.append(frame_features)
+    video_features = {
+        'frames': frames_features
+    }
+
+    return video_features
+
+
+def add_videos_dataset(dir_path):
+    entries = os.scandir(dir_path)
+    for i, entry in enumerate(entries):
+        if entry.is_dir():
+            continue
+        print(f'{i}, video: {entry.name}')
+        features = calculate_video_features(entry.path)
+        features['name'] = entry.name
+        _, ext = os.path.splitext(entry.name)
+        inserted = db.insert_key_frames(features)
+        shutil.copy(entry.path, os.path.join(videos_base_path, f'{inserted.inserted_id}.{ext}'))
 
 
 if __name__ == '__main__':
-    path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/all dataset"
+    path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/videos"
     # add_dataset(path)
 
-    similarity = search_by_image(
-        "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/all dataset/862.jpg")
+    # similarity = search_by_image(
+    #     "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/all dataset/862.jpg")
+    #
+    # similarity = sort_by(similarity, 'histogram')
+    #
+    # for i, image in enumerate(similarity):
+    #     _, ext = os.path.splitext(image.get('name'))
+    #     name = f'{image.get("_id")}.{ext}'
+    #     path = os.path.join(base_path, name)
+    #     img = cv.imread(path)
+    #     cv.imshow(f'{i}, {image.get("histogram")}, {name}', img)
+    #
+    #     cv.waitKey(0)
 
-    similarity = sort_by(similarity, 'histogram')
-
-    for i, image in enumerate(similarity):
-        _, ext = os.path.splitext(image.get('name'))
-        name = f'{image.get("_id")}.{ext}'
-        path = os.path.join(base_path, name)
-        img = cv.imread(path)
-        cv.imshow(f'{i}, {image.get("histogram")}, {name}', img)
-
-        cv.waitKey(0)
+    add_videos_dataset(path)
+    # features = calculate_video_features(path)
+    #
+    # inserted = db.insert_key_frames(features)
+    # print(inserted)

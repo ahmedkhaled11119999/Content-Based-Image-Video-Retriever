@@ -9,17 +9,21 @@ class DB:
             "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
         self.__db = client.get_database('CBIVR')
         self.__images_data = self.__db['Images_data']
+        self.__videos_data = self.__db['Videos_data']
 
     def insert_image(self, image_features):
         return self.__images_data.insert_one(image_features)
 
-    def insert_key_frames(self, key_frames_features):
-        return self.__images_data.insert_many(key_frames_features)
+    def insert_key_frames(self, video_features):
+        return self.__videos_data.insert_one(video_features)
 
-    def get_all(self, filters=None):
+    def get_all_images(self, filters=None):
         if filters is None:
             filters = {}
         return self.__images_data.find(filters)
+
+    def get_all_videos(self):
+        return self.__videos_data.find({})
 
 
 if __name__ == '__main__':
@@ -65,7 +69,7 @@ if __name__ == '__main__':
     # result = db.insert_key_frames(video_frames_features)
     # print(f'db.insert_key_frames(video_frames_features): \n{result}')
     # result = db.get_all({'$not': {'path': None}})
-    result = db.get_all({})
+    result = db.get_all_images({})
     for x in result:
         print(x.get('path'))
         if x.get('parent_video_path'):
