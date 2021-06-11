@@ -15,7 +15,7 @@ def calc_average(image):
     int_averages = np.array(avg_colors, dtype=np.uint8)
     # avg_color is a tuple in BGR order of the average colors
     # but as float values
-    print(f'avg_colors: {int_averages}')
+    # print(f'avg_colors: {int_averages}')
     return int_averages
 
 
@@ -32,7 +32,7 @@ def calc_dominant(image):
     dominant = palette[np.argmax(counts)]
 
     int_dominant = np.array(dominant, dtype=np.uint8)
-    print(f'int_dominant: {int_dominant}')
+    # print(f'int_dominant: {int_dominant}')
     return int_dominant
 
 

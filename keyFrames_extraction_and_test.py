@@ -3,6 +3,7 @@ import cv2 as cv
 import os
 import numpy as np
 
+
 def extract_key_frames(video_path):
     """
     open the video and extract the key frames as opencv images

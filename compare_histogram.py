@@ -26,7 +26,7 @@ def calc_hist_2(image):
     hist = cv2.calcHist([hsv_base], channels, None, histSize, ranges, accumulate=False)
     cv2.normalize(hist, hist, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
 
-    hist = hist
+    # hist = hist
     l = hist.tolist()
     # l = hist
 
@@ -43,10 +43,8 @@ def hist_comp_2(hist1, hist2):
 
     hist1 = np.array(hist1, dtype=np.float32)
 
-    print(hist1.ctypes)
     # hist1 = cv2.convertMaps(hist1, hist1, cv2.CV_32F)
     # hist1 = hist1.convertTo(cv2.CV_32F, 0, 1)
-    print(hist1.shape)
     hist2 = np.array(hist2, dtype=np.float32)
     # hist2 = cv2.convertMaps(hist2, hist2, cv2.CV_32F)
     return cv2.compareHist(hist1, hist2, cv2.HISTCMP_CORREL)
@@ -133,6 +131,7 @@ if __name__ == '__main__':
 
     hist1 = calc_hist_2(image)
     hist2 = calc_hist_2(image2)
+
 
     s = hist_comp_2(hist1, hist2)
 

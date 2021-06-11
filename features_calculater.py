@@ -1,16 +1,16 @@
-import json
-
 from db import DB
 from average_fun import calc_average, calc_dominant, average_compare, dominant_compare
 from test_key_extraction import extract_key_frames
 from object_detection import extract_objects
-from compare_histogram import calculate_histogram, histogram_compare
+from compare_histogram import calc_hist_2, hist_comp_2
 
-import numpy as np
+import shutil
 import cv2 as cv
 import os
 
 db = DB()
+
+base_path = 'DB/storage'
 
 
 def color_compare(color1, color2):
@@ -35,11 +35,10 @@ def calculate_image_features(image):
     image_features = {
         'shape': (image.shape[0], image.shape[1]),
         'avg_color': calc_average(image).tolist(),
-        # 'dominate_color': calc_dominant(image).tolist(),
-        'histogram': calculate_histogram(image),
+        'dominant_color': calc_dominant(image).tolist(),
+        'histogram': calc_hist_2(image),
         'objects': extract_objects(image)
     }
-    image_features['dominant_color'] = image_features['avg_color']
     return image_features
 
 
@@ -69,12 +68,11 @@ def compare_two_images(image1_features, image2_features):
     average_color = color_compare(image1_features.get('avg_color'),
                                   image2_features.get('avg_color'))
 
-    xx = image2_features.get('dominant_color')
     dominant_color = color_compare(image1_features.get('dominant_color'),
-                                   xx)
+                                   image2_features.get('dominant_color'))
 
-    histogram = histogram_compare(image1_features.get('histogram'),
-                                  image2_features.get('histogram'))
+    histogram = hist_comp_2(image1_features.get('histogram'),
+                            image2_features.get('histogram'))
     common_objects = set(image2_features.get('objects')).intersection(image1_features.get('objects'))
 
     return {
@@ -94,46 +92,53 @@ def search_by_image(path):
     """
     similarity = []
     query_image_feature = get_image_features(path)
-    # images_features = db.get_all({'$not': {'path': None}})
+    # images_features = db.get_all({'$not': {'name': None}})
     images_features = db.get_all({})
     for image_features in images_features:
-        im = cv.imread(image_features.get('path'))
-        image_features['histogram'] = calculate_histogram(im)
         similar_image = compare_two_images(query_image_feature, image_features)
-        similar_image['path'] = image_features['path']
+        similar_image['name'] = image_features['name']
+        similar_image['_id'] = image_features['_id']
+
 
         similarity.append(similar_image)
-
     return similarity
 
 
 def sort_by(similarity, feature):
-    similarity.sort(key=lambda image: image.get(feature), reverse=True)
+    if feature == 'common_objects':
+        similarity.sort(key=lambda image: len(image.get(feature)), reverse=True)
+    else:
+        similarity.sort(key=lambda image: image.get(feature), reverse=True)
     return similarity
 
 
-def add_dataset(dir_path):
-    for entry in os.scandir(dir_path):
+def add_images_dataset(dir_path):
+    entries = os.scandir(dir_path)
+    for i, entry in enumerate(entries):
         if entry.is_dir():
             continue
+        print(f'{i}, image: {entry.name}')
         features = calculate_image_features(cv.imread(entry.path))
-        features['path'] = entry.path
-        print(f'finished: {entry.name}')
-
-        # print(features)
-        features['histogram'] = []
-        db.insert_image(features)
+        features['name'] = entry.name
+        _, ext = os.path.splitext(entry.name)
+        inserted = db.insert_image(features)
+        shutil.copy(entry.path, os.path.join(base_path, f'{inserted.inserted_id}.{ext}'))
 
 
 if __name__ == '__main__':
-    path = "D:/Media/Gallery/GOT/Game Of Thrones"
+    path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/all dataset"
     # add_dataset(path)
 
-    similarity = search_by_image("D:/Education/University/4thCSE/2nd/MultiMedia/Project/Dev/DB/storage/01.jpg")
+    similarity = search_by_image(
+        "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/all dataset/862.jpg")
 
-    similarity = sort_by(similarity, 'average_color')
+    similarity = sort_by(similarity, 'histogram')
 
     for i, image in enumerate(similarity):
-        cv.imshow(f'{i}, {image.get("average_color")}, {image.get("path")}', cv.imread(image.get("path")))
+        _, ext = os.path.splitext(image.get('name'))
+        name = f'{image.get("_id")}.{ext}'
+        path = os.path.join(base_path, name)
+        img = cv.imread(path)
+        cv.imshow(f'{i}, {image.get("histogram")}, {name}', img)
 
         cv.waitKey(0)

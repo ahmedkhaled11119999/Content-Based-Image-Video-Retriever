@@ -3,9 +3,11 @@ from pymongo import MongoClient
 
 class DB:
     def __init__(self):
+        # client = MongoClient(
+        #     "mongodb+srv://admin_belal:qwertyzxcvbnm@clusterformultimediapro.5bugi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
         client = MongoClient(
-            "mongodb+srv://admin_belal:qwertyzxcvbnm@clusterformultimediapro.5bugi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-        self.__db = client.get_database('Images_features')
+            "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+        self.__db = client.get_database('CBIVR')
         self.__images_data = self.__db['Images_data']
 
     def insert_image(self, image_features):
@@ -23,7 +25,7 @@ class DB:
 if __name__ == '__main__':
 
     avg_color = [20, 45, 54]
-    dominate_color = [20, 45, 54]
+    dominant_color = [20, 45, 54]
     histogram = [
         [[20], [48]],  # B channel
         [[20], [48]],  # G channel
@@ -34,7 +36,7 @@ if __name__ == '__main__':
         'path': 'image_path',
         'shape': (100, 50),
         'avg_color': avg_color,
-        'dominate_color': dominate_color,
+        'dominant_color': dominant_color,
         'histogram': histogram,
         'objects': ['brush', 'boy', 'girl']
     }
@@ -44,7 +46,7 @@ if __name__ == '__main__':
             'parent_video_path': 'video_path',
             'shape': (100, 50),
             'avg_color': avg_color,
-            'dominate_color': dominate_color,
+            'dominant_color': dominant_color,
             'histogram': histogram,
             'objects': ['brush', 'boy', 'girl']
         },
@@ -52,7 +54,7 @@ if __name__ == '__main__':
             'parent_video_path': 'video_path',
             'shape': (100, 50),
             'avg_color': avg_color,
-            'dominate_color': dominate_color,
+            'dominant_color': dominant_color,
             'histogram': histogram,
             'objects': ['brush', 'boy', 'girl']
         }

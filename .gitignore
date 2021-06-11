@@ -26,3 +26,5 @@ installer/output/Updater
 # update example files
 installer/update/Updater*
 installer/update/data/*
+
+DB/storage/*
