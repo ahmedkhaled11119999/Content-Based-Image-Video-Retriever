@@ -24,16 +24,23 @@ def calculate_image_features(image, ignore_dominant=False):
     :param image:
     :return:
     """
-    image_features = {
-        'shape': (image.shape[0], image.shape[1]),
-        'avg_color': calc_average(image).tolist(),
-        'histogram': calc_hist_hsv(image),
-        'objects': extract_objects(image)
-    }
     if ignore_dominant:
-        image_features['dominant_color'] = image_features['avg_color']
+        image_features = {
+            'shape': (image.shape[0], image.shape[1]),
+            'avg_color': calc_average(image).tolist(),
+            'dominant_color': calc_average(image).tolist(),
+            'histogram': calc_hist_hsv(image),
+            'objects': extract_objects(image)
+        }
     else:
-        image_features['dominant_color'] = calc_dominant(image).tolist()
+        image_features = {
+            'shape': (image.shape[0], image.shape[1]),
+            'avg_color': calc_average(image).tolist(),
+            'dominant_color': calc_dominant(image).tolist(),
+            'histogram': calc_hist_hsv(image),
+            'objects': extract_objects(image)
+        }
+
     return image_features
 
 
