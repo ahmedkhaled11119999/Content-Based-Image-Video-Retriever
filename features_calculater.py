@@ -25,10 +25,14 @@ def color_compare(color1, color2):
     avg_color1 = avg_color1 / 3
     avg_color2 = int(color2[0]) + int(color2[1]) + int(color2[2])
     avg_color2 = avg_color2 / 3
-    if avg_color1 > avg_color2:
+
+    if avg_color1 == avg_color2:
+        similarity = 1
+    elif avg_color1 > avg_color2:
         similarity = avg_color2 / avg_color1
     else:
         similarity = avg_color1 / avg_color2
+
     return similarity
 
 
@@ -234,8 +238,9 @@ if __name__ == '__main__':
 
     query_video_path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/videos/Blue Whales 101 _ Nat Geo Wild.mp4"
 
-    query_video_features = calculate_video_features(query_video_path)
+    # query_video_features = calculate_video_features(query_video_path)
     db_videos_features = get_saved_videos_features()
+    query_video_features = db_videos_features[0]
 
     videos = search_by_video2(query_video_features, db_videos_features)
 
