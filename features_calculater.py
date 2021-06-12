@@ -1,3 +1,5 @@
+import sys
+
 from db import DB
 from average_fun import calc_average, calc_dominant, color_compare
 from test_key_extraction import extract_key_frames
@@ -270,11 +272,7 @@ def search_by_video_features(query_video_features, db_videos_features, feature='
     return similar_videos
 
 
-if __name__ == '__main__':
-
-    # images_dataset_path = "C:/Users/Legion/Desktop/images"
-    # add_images_dataset(images_dataset_path)
-
+def test_search_by_image():
     query_image_path = "C:/Users/Legion/PycharmProjects/Content-Based-Image-Video-Retriever/DB/storage/images/60c40f1df6d82ab4651128b5..jpg"
 
     similarity = search_by_image(
@@ -291,15 +289,29 @@ if __name__ == '__main__':
         cv.imshow(f'{i}, {image.get("histogram")}, {name}', img)
         cv.waitKey(0)
 
-    # videos_dataset_path = "C:/Users/Legion/Desktop/vids"
-    # add_videos_dataset(videos_dataset_path)
 
-    # query_video_path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/videos/Blue Whales 101 _ Nat Geo Wild.mp4"
-    #
-    # # query_video_features = calculate_video_features(query_video_path)
-    # db_videos_features = get_saved_videos_features()
-    # query_video_features = db_videos_features[0]
-    #
-    # videos = search_by_video2(query_video_features, db_videos_features)
-    #
-    # print(videos)
+def test_search_by_video():
+    query_video_path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/videos/Blue Whales 101 _ Nat Geo Wild.mp4"
+
+    # query_video_features = calculate_video_features(query_video_path)
+    db_videos_features = get_saved_videos_features()
+    query_video_features = db_videos_features[0]
+
+    videos = search_by_video_features(query_video_features, db_videos_features)
+
+    print(videos)
+
+
+if __name__ == '__main__':
+    print('please enter path to images dataset')
+    images_dataset_path = sys.argv[1]
+
+    # images_dataset_path = "C:/Users/Legion/Desktop/images"
+
+    print('please enter path to videos dataset')
+    videos_dataset_path = sys.argv[2]
+    # videos_dataset_path = "C:/Users/Legion/Desktop/vids"
+
+    add_images_dataset(images_dataset_path)
+
+    add_videos_dataset(videos_dataset_path)
