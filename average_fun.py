@@ -4,6 +4,13 @@ from PIL import Image
 
 
 def calc_average(image):
+    """
+    It calculates the average color of all the pixels in one image. In depth, this we load a pixel and unpack its
+    individual color channels. Then we sum of the channel values into an accumulator then divide these sums by the
+    number of all pixels.
+    :param image:
+    :return:
+    """
     height, width, _ = np.shape(image)
 
     # calculate the average color of each row of our image
@@ -20,6 +27,12 @@ def calc_average(image):
 
 
 def calc_dominant(image):
+    """
+    The dominant color is a descriptor that extract the color the most used in the image. In other words, the color of
+    the pixels that have the maximum number in one image will represent the dominant color.
+    :param image:
+    :return:
+    """
     height, width, _ = np.shape(image)
     pixels = np.float32(image.reshape(-1, 3))
 
@@ -36,69 +49,32 @@ def calc_dominant(image):
     return int_dominant
 
 
-def average_compare(image1, image2):
-    RGB1 = calc_average(image1)
-    RGB2 = calc_average(image2)
+def color_compare(color1, color2):
+    """
+    return how well two colors are similar, color is 80% similar to color2
+    :param color1:
+    :param color2:
+    :return:
+    """
+    avg_color1 = int(color1[0]) + int(color1[1]) + int(color1[2])
+    avg_color1 = avg_color1 / 3
+    avg_color2 = int(color2[0]) + int(color2[1]) + int(color2[2])
+    avg_color2 = avg_color2 / 3
 
-    # if (int(RGB1[0]) > int(RGB2[0])):
-    #     R_diff = int(RGB1[0]) - int(RGB2[0])
-    #     R_diff = R_diff / 2.55
-    #     print(R_diff)
-    # else:
-    #     R_diff = int(RGB2[0]) - int(RGB1[0])
-    #     R_diff = R_diff / 2.55
-    #     print(R_diff)
-    #
-    # if (int(RGB1[1]) > int(RGB2[1])):
-    #     G_diff = int(RGB1[1]) - int(RGB2[1])
-    #     G_diff = G_diff /2.55
-    #     print(G_diff)
-    # else:
-    #     G_diff = int(RGB2[1]) - int(RGB1[1])
-    #     G_diff = G_diff / 2.55
-    #     print(G_diff)
-    #
-    # if (int(RGB1[2]) > int(RGB2[2])):
-    #     B_diff = int(RGB1[2]) - int(RGB2[2])
-    #     B_diff = B_diff / 2.55
-    #     print(B_diff)
-    # else:
-    #     B_diff = int(RGB2[2]) - int(RGB1[2])
-    #     B_diff = B_diff / 2.55
-    #     print(B_diff)
-    # similarity = 300 -G_diff - B_diff - R_diff
-    # similarity = similarity /3
-    # print(similarity)
-    average1 = int(RGB1[0]) + int(RGB1[1]) + int(RGB1[2])
-    average1 = average1 / 3
-    average2 = int(RGB2[0]) + int(RGB2[1]) + int(RGB2[2])
-    average2 = average2 / 3
-    if (average1 > average2):
-        similarity = average2 / average1
+    if avg_color1 == avg_color2:
+        similarity = 1
+    elif avg_color1 > avg_color2:
+        similarity = avg_color2 / avg_color1
     else:
-        similarity = average1 / average2
+        similarity = avg_color1 / avg_color2
 
-    return similarity * 100
+    return similarity
 
-
-def dominant_compare(image1, image2):
-    RGB1 = calc_dominant(image1)
-    RGB2 = calc_dominant(image2)
-    dominant1 = int(RGB1[0]) + int(RGB1[1]) + int(RGB1[2])
-    dominant1 = dominant1 / 3
-    dominant2 = int(RGB2[0]) + int(RGB2[1]) + int(RGB2[2])
-    dominant2 = dominant2 / 3
-    if (dominant1 > dominant2):
-        similarity = dominant2 / dominant1
-    else:
-        similarity = dominant1 / dominant2
-
-    return similarity * 100
 
 if __name__ == '__main__':
 
     #####################################test #########################################
-    # original_image =  cv2.imread('1.jpg')
+    original_image =  cv2.imread('1.jpg')
     # average = calc_average('1.jpg')
     # height, width, _ = np.shape(original_image)
     # dominant = calc_dominant('1.jpg')
@@ -115,6 +91,3 @@ if __name__ == '__main__':
     # cv2.imshow("Avg Color", np.hstack([average_image]))
     # cv2.imshow("dominant Color", np.hstack([dominant_image]))
     # cv2.waitKey(0)
-
-    result = average_compare('colorpic.jpg', 'HP_train.jpg')
-    print(result)

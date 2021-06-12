@@ -1,5 +1,3 @@
-# from db import DB
-# from averagefun import calc_average, calc_dominant, calc_hist
 import cv2 as cv
 import os
 import numpy as np
@@ -50,5 +48,7 @@ def Test_extract_key_frames(video_path):
     #     cv.imshow('key frame ' + str(i), key_frames[i])
     #     cv.waitKey(500)
 
-# video_path = 'C:/Users/Legion/Desktop/Maph.m4v'
-# Test_extract_key_frames(video_path)
+
+if __name__ == '__main__':
+    video_path = 'C:/Users/Legion/Desktop/Maph.m4v'
+    Test_extract_key_frames(video_path)

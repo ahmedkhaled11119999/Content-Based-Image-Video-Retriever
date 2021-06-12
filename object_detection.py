@@ -3,10 +3,6 @@ import cv2
 thres = 0.5  # Threshold to detect object
 
 
-# cap = cv2.VideoCapture(1)
-# cap.set(3,1280)
-# cap.set(4,720)
-# cap.set(10,70)
 def extract_objects(image):
     """
     take an opencv image and extract the objects in it
@@ -29,9 +25,10 @@ def extract_objects(image):
     net.setInputMean((127.5, 127.5, 127.5))
     net.setInputSwapRB(True)
 
-    # while True:
-    # success, image = cap.read()
     classIds, confs, bbox = net.detect(image, confThreshold=thres)
+
+    # for id, conf in zip(classIds, confs):
+    #     print(f'name: {id}, conf: {conf}')
 
     try:
         extracted_objectsIds = classIds.flatten()
@@ -43,15 +40,9 @@ def extract_objects(image):
     if len(classIds) != 0:
         for classId, confidence, box in zip(classIds.flatten(), confs.flatten(), bbox):
             cv2.rectangle(image, box, color=(0, 255, 0), thickness=2)
-            # cv2.putText(image,classNames[classId-1].upper(),(box[0]+10,box[1]+30),
-            #       cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),2)
             cv2.putText(image, classNames[classId - 1].upper(), (box[0] + 10, box[1] + 30),
                         cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
 
-        # cv2.putText(image,str(round(confidence*100,2)),(box[0]+200,box[1]+30),
-        #        cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),2)
-    # cv2.imshow("Output",image)
-    # cv2.waitKey(0)
     return extracted_objects
 
 

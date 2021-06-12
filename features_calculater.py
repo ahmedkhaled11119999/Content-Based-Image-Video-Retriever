@@ -1,5 +1,5 @@
 from db import DB
-from average_fun import calc_average, calc_dominant
+from average_fun import calc_average, calc_dominant, color_compare
 from test_key_extraction import extract_key_frames
 from object_detection import extract_objects
 from compare_histogram import calc_hist_hsv, hist_comp_hsv
@@ -12,28 +12,6 @@ db = DB()
 
 images_base_path = 'DB/storage/images'
 videos_base_path = 'DB/storage/videos'
-
-
-def color_compare(color1, color2):
-    """
-    return how well two colors are similar, color is 80% similar to color2
-    :param color1:
-    :param color2:
-    :return:
-    """
-    avg_color1 = int(color1[0]) + int(color1[1]) + int(color1[2])
-    avg_color1 = avg_color1 / 3
-    avg_color2 = int(color2[0]) + int(color2[1]) + int(color2[2])
-    avg_color2 = avg_color2 / 3
-
-    if avg_color1 == avg_color2:
-        similarity = 1
-    elif avg_color1 > avg_color2:
-        similarity = avg_color2 / avg_color1
-    else:
-        similarity = avg_color1 / avg_color2
-
-    return similarity
 
 
 def calculate_image_features(image, ignore_dominant=False):
