@@ -20,7 +20,7 @@ win = tk.Tk()
 win.title("Content Based Image/Video Retriever")
 win.configure(background='#0D379B')
 win.geometry("1000x700")
-win.resizable(False, False)
+win.resizable(True, False)
 
 
 # ----------------------------
