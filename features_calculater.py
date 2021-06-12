@@ -35,7 +35,7 @@ def calculate_image_features(image):
     image_features = {
         'shape': (image.shape[0], image.shape[1]),
         'avg_color': calc_average(image).tolist(),
-        # 'dominate_color': calc_dominant(image).tolist(),
+        'dominate_color': calc_dominant(image).tolist(),
         'histogram': calculate_histogram(image),
         'objects': extract_objects(image)
     }
@@ -129,7 +129,7 @@ if __name__ == '__main__':
     path = "D:/Media/Gallery/GOT/Game Of Thrones"
     # add_dataset(path)
 
-    similarity = search_by_image("D:/Education/University/4thCSE/2nd/MultiMedia/Project/Dev/DB/storage/01.jpg")
+    similarity = search_by_image("C:/Users/Legion/Desktop/01.jpg")
 
     similarity = sort_by(similarity, 'average_color')
 
