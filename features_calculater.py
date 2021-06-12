@@ -211,10 +211,16 @@ def compare_two_videos(video1_features, video2_features, feature='histogram'):
     :param video2_features:
     :return:
     """
-    similarity = 0
+    if feature == 'common_objects':
+        similarity = []
+    else:
+        similarity = 0
     for video1_frame, video2_frame in zip(video1_features['frames'], video2_features['frames']):
         similarity += compare_two_images(video1_frame, video2_frame)[feature]
-    return similarity / len(video1_features['frames'])
+    if feature == 'common_objects':
+        return list(set(similarity))
+    else:
+        return similarity / len(video1_features['frames'])
 
 
 def search_by_video(path, feature='histogram'):
@@ -256,7 +262,11 @@ def search_by_video_features(query_video_features, db_videos_features, feature='
         path = os.path.join(videos_base_path, f'{video_features.get("_id")}.{ext}')
         similar_video['path'] = path
         similar_videos.append(similar_video)
-    similar_videos.sort(key=lambda video: video.get('similarity'), reverse=True)
+    if feature == 'common_objects':
+        similar_videos.sort(key=lambda video: len(video.get('similarity')), reverse=True)
+    else:
+        similar_videos.sort(key=lambda video: video.get('similarity'), reverse=True)
+
     return similar_videos
 
 
