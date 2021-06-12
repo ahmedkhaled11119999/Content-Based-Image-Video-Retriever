@@ -238,8 +238,8 @@ def features_sort():
             # copyPathButton.place_forget()
             # imageIndexLabel.place_forget()
             # similarityLabel.place_forget()
-            videos_search_result = search_by_video2(video_features, get_saved_videos_features(),
-                                                    searchDict.get(var_selectedFeature.get()))
+            videos_search_result = search_by_video_features(video_features, get_saved_videos_features(),
+                                                            searchDict.get(var_selectedFeature.get()))
             for record in videos_search_result:
                 path = record.get("path")
                 searchVideos.append(path)
@@ -348,8 +348,8 @@ def primarySearch():
             copyPathButton.place_forget()
             imageIndexLabel.place_forget()
             similarityLabel.place_forget()
-            videos_search_result = search_by_video2(video_features, get_saved_videos_features(),
-                                                    searchDict.get(var_selectedFeature.get()))
+            videos_search_result = search_by_video_features(video_features, get_saved_videos_features(),
+                                                            searchDict.get(var_selectedFeature.get()))
             for record in videos_search_result:
                 path = record.get("path")
                 searchVideos.append(path)

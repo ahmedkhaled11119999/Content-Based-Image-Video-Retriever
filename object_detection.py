@@ -36,7 +36,7 @@ def extract_objects(image):
     try:
         extracted_objectsIds = classIds.flatten()
     except Exception as e:
-        print(f'error in object detection')
+        print(f'no objects can be detected')
     for i in extracted_objectsIds:
         extracted_objects.append(classNames[i - 1])
     # print(extracted_objects)

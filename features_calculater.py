@@ -1,8 +1,8 @@
 from db import DB
-from average_fun import calc_average, calc_dominant, average_compare, dominant_compare
+from average_fun import calc_average, calc_dominant
 from test_key_extraction import extract_key_frames
 from object_detection import extract_objects
-from compare_histogram import calc_hist_2, hist_comp_2
+from compare_histogram import calc_hist_hsv, hist_comp_hsv
 
 import shutil
 import cv2 as cv
@@ -37,23 +37,38 @@ def color_compare(color1, color2):
 
 
 def calculate_image_features(image):
+    """
+    calculate the image features using the helper functions
+    :param image:
+    :return:
+    """
     image_features = {
         'shape': (image.shape[0], image.shape[1]),
         'avg_color': calc_average(image).tolist(),
         'dominant_color': calc_dominant(image).tolist(),
-        'histogram': calc_hist_2(image),
+        'histogram': calc_hist_hsv(image),
         'objects': extract_objects(image)
     }
     return image_features
 
 
 def get_image_features(path):
+    """
+    open the image then calculate its features
+    :param path:
+    :return:
+    """
     image = cv.imread(path)
     features = calculate_image_features(image)
     return features
 
 
 def get_video_features(path):
+    """
+    extract the key frames from the video then calculate each frame features
+    :param path:
+    :return:
+    """
     frames = extract_key_frames(path)
     frames_features = []
     for frame in frames:
@@ -65,7 +80,7 @@ def get_video_features(path):
 
 def compare_two_images(image1_features, image2_features):
     """
-    return
+    compares two images features and return dict with similarity of each feature
     :param image1_features:
     :param image2_features:
     :return:
@@ -76,8 +91,8 @@ def compare_two_images(image1_features, image2_features):
     dominant_color = color_compare(image1_features.get('dominant_color'),
                                    image2_features.get('dominant_color'))
 
-    histogram = hist_comp_2(image1_features.get('histogram'),
-                            image2_features.get('histogram'))
+    histogram = hist_comp_hsv(image1_features.get('histogram'),
+                              image2_features.get('histogram'))
     common_objects = set(image2_features.get('objects')).intersection(image1_features.get('objects'))
 
     return {
@@ -90,16 +105,20 @@ def compare_two_images(image1_features, image2_features):
 
 def search_by_image(path):
     """
-    Take an image and calculate the image features, and compare the precalculated images features in the db and return
-    list of each image similarity
+    open the image then search search_by_image_binary
     :param path:
     :return:
     """
-    print(path)
-    return search_by_image_2(cv.imread(path))
+    return search_by_image_binary(cv.imread(path))
 
 
-def search_by_image_2(image):
+def search_by_image_binary(image):
+    """
+    Take an image and calculate the image features, and compare with the precalculated images features in the db and return
+    list of each image similarity
+    :param image:
+    :return:
+    """
     similarity = []
     query_image_feature = calculate_image_features(image)
     images_features = db.get_all_images({})
@@ -115,6 +134,12 @@ def search_by_image_2(image):
 
 
 def sort_by(similarity, feature):
+    """
+    sort by the feature required
+    :param similarity:
+    :param feature:
+    :return:
+    """
     if feature == 'common_objects':
         similarity.sort(key=lambda image: len(image.get(feature)), reverse=True)
     else:
@@ -123,6 +148,11 @@ def sort_by(similarity, feature):
 
 
 def add_images_dataset(dir_path):
+    """
+    this can add entire directory to the images database
+    :param dir_path:
+    :return:
+    """
     entries = os.scandir(dir_path)
     for i, entry in enumerate(entries):
         if entry.is_dir():
@@ -172,6 +202,11 @@ def calculate_video_features(path):
 
 
 def add_videos_dataset(dir_path):
+    """
+    this can add entire directory to the videos database
+    :param dir_path:
+    :return:
+    """
     entries = os.scandir(dir_path)
     for i, entry in enumerate(entries):
         if entry.is_dir():
@@ -186,7 +221,8 @@ def add_videos_dataset(dir_path):
 
 def compare_two_videos(video1_features, video2_features, feature='histogram'):
     """
-    compare video1 key frames with video 2 key frames and get the average similarity
+    compare video1 key frames with video 2 key frames and get the average similarity, this is based on naive compare
+    algorithm in which we compare first video key frames with the corresponding second video key frmaes
     :param feature:
     :param video1_features:
     :param video2_features:
@@ -199,16 +235,35 @@ def compare_two_videos(video1_features, video2_features, feature='histogram'):
 
 
 def search_by_video(path, feature='histogram'):
+    """
+    1. calculate video features
+    2. get saved videos features from the db
+    3. search video by the required feature
+    :param path:
+    :param feature:
+    :return:
+    """
     query_video_features = calculate_video_features(path)
     db_videos_features = get_saved_videos_features()
-    return search_by_video2(query_video_features, db_videos_features, feature)
+    return search_by_video_features(query_video_features, db_videos_features, feature)
 
 
 def get_saved_videos_features():
+    """
+    get saved videos features from the db
+    :return:
+    """
     return db.get_all_videos()
 
 
-def search_by_video2(query_video_features, db_videos_features, feature='histogram'):
+def search_by_video_features(query_video_features, db_videos_features, feature='histogram'):
+    """
+    take a video query features to be search in the db videos
+    :param query_video_features:
+    :param db_videos_features:
+    :param feature:
+    :return:
+    """
     similar_videos = []
     for video_features in db_videos_features:
         similarity = compare_two_videos(query_video_features, video_features, feature)
@@ -220,6 +275,7 @@ def search_by_video2(query_video_features, db_videos_features, feature='histogra
         similar_videos.append(similar_video)
     similar_videos.sort(key=lambda video: video.get('similarity'), reverse=True)
     return similar_videos
+
 
 if __name__ == '__main__':
 
@@ -254,5 +310,3 @@ if __name__ == '__main__':
     # videos = search_by_video2(query_video_features, db_videos_features)
     #
     # print(videos)
-
-

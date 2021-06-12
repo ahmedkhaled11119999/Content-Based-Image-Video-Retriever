@@ -14,7 +14,7 @@ def normalize(input_array, size):
     return output_array
 
 
-def calc_hist_2(image):
+def calc_hist_hsv(image):
     hsv_base = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     h_bins = 50
     s_bins = 60
@@ -34,7 +34,7 @@ def calc_hist_2(image):
     return l
 
 
-def hist_comp_2(hist1, hist2):
+def hist_comp_hsv(hist1, hist2):
     # str_list = ['1', '2', '3']
     # int_list = map(int, str_list)
     # print
@@ -129,11 +129,11 @@ if __name__ == '__main__':
     # #
     # print(histogram_compare(histogram1, histogram2))
 
-    hist1 = calc_hist_2(image)
-    hist2 = calc_hist_2(image2)
+    hist1 = calc_hist_hsv(image)
+    hist2 = calc_hist_hsv(image2)
 
 
-    s = hist_comp_2(hist1, hist2)
+    s = hist_comp_hsv(hist1, hist2)
 
     print(s)
 
