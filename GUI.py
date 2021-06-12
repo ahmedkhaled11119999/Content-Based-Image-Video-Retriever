@@ -43,7 +43,10 @@ imageIndex = 0
 videoIndex = 0
 imagePath = ""
 videoPath = ""
+video_features = {}
 images_search_result = []
+videos_search_result = []
+video_similarity = 0
 
 def nextImage():
     openVideoButton.destroy()
@@ -70,8 +73,12 @@ def nextImage():
     indexLabel.pack()
     indexLabel.place(x=780, y=470)
 
+
+
+
 def nextVideo():
     global videoLabel
+    global video_similarity
     videoLabel.pack_forget()
     newImageLabel.destroy()
     global videoIndex
@@ -83,12 +90,15 @@ def nextVideo():
     elif videoIndex == videosNum:
         videoIndex = 0
     videoPath = searchVideos[videoIndex]
+    video_similarity = videos_search_result[videoIndex].get('similarity')
     videoLabel.config(text=videoPath)
     videoLabel.pack()
     videoLabel.place(x=685, y=130)
     indexLabel = tk.Label(win, text=str(videoIndex+1)+" of "+str(len(searchVideos))+" Results", bg="#0D379B", fg="white")
     indexLabel.pack()
     indexLabel.place(x=780, y=470)
+    featureLabel.config(text=featureDict.get(var_selectedFeature.get()) + str(video_similarity))
+
 
 def previousImage():
     openVideoButton.destroy()
@@ -166,6 +176,7 @@ def primarySearch():
     global newImageLabel
     global openVideoButton
     global images_search_result
+    global videos_search_result
     if var_selectedFeature.get() == 0:
         tk.messagebox.showwarning(title="Warning", message="Please choose any feature to filter with.")
     else:
@@ -177,12 +188,11 @@ def primarySearch():
             global imagePath
             openVideoButton.destroy()
             videoLabel.destroy()
-            print("###########",imagePath)
             images_search_result = search_by_image(imagePath)
             images_search_result = sort_by(images_search_result,searchDict.get(var_selectedFeature.get()))
             for record in images_search_result:
                 path = record.get("path")
-                path = os.path.abspath(path)
+                # path = os.path.abspath(path)
                 searchImages.append(path)
             # for record in search_result:
             #     searchImages.append(img)
@@ -216,13 +226,17 @@ def primarySearch():
         else:
             newImageLabel.destroy()
             global videoPath
+            global video_similarity
             global searchVideos
             searchVideos.clear()
             global videoIndex
             videoIndex = 0
             # Todo: remove glob and initialize searchVideos with similarities
-            for vid in glob.glob("C:/Users/Legion/Desktop/*.mp4"):
-                searchVideos.append(vid)
+            videos_search_result = search_by_video2(video_features,get_saved_videos_features(),searchDict.get(var_selectedFeature.get()))
+            for record in videos_search_result:
+                path = record.get("path")
+                # path = os.path.abspath(path)
+                searchVideos.append(path)
             # to be changed with network image
             videoPath = searchVideos[videoIndex]
             videoLabel = tk.Label(text=videoPath, bg="#0D379B", fg="white")
@@ -252,12 +266,15 @@ def primarySearch():
                                   bg="#0D379B", fg="white")
             indexLabel.pack()
             indexLabel.place(x=780, y=470)
+            video_similarity = videos_search_result[videoIndex].get('similarity')
+
+            featureLabel.config(text=featureDict.get(var_selectedFeature.get()) + str(video_similarity))
             featureLabel.pack()
             featureLabel.place(x=730, y=510)
 
 def search():
     primarySearch()
-    updateFeatureLabel()
+#    updateFeatureLabel()
 
 def updateFeatureLabel():
     similarity = images_search_result[imageIndex].get(searchDict.get(var_selectedFeature.get()))
@@ -323,6 +340,8 @@ def openImage():
 
 
 def openVid():
+    global video_features
+    global videoPath
     filename = filedialog.askopenfilename()
     if (len(Entry.get(fileEntryTextField))):
         fileEntryTextField.delete(0, END)
@@ -333,19 +352,21 @@ def openVid():
         videoLabel.place(bordermode=INSIDE, x=110, y=100)
         # Select the video from a folder
         vidPath = fileEntryTextField.get()
-
+        videoPath = vidPath
         vid = Label(win)
         vid.pack()
         vid.place(x=30, y=130)
         player = tkvideo(vidPath, vid, loop=1, size=(250, 250))
         player.play()
-        #todo: replace x,y with list of the real rgb
+        video_features = calculate_video_features(videoPath)
+        # video_features = get_saved_videos_features()[0]
+        #todo: replace features with no. of key frames
         x = [0, 255, 0]
         y = [0, 0, 0]
         show_search()
         show_features(x, y)
 
-def show_features(avg, dom,histogram):
+def show_features(avg, dom):
     Average_color = rgbtohex(avg[0], avg[1], avg[2])
     average_label1 = tk.Label(win, text="Average Color", bg="#0D379B", fg="white")
     average_label1.pack()
@@ -362,17 +383,17 @@ def show_features(avg, dom,histogram):
     dominant_label.pack()
     dominant_label.place(bordermode=INSIDE, x=150, y=430)
 
-    histogramLabel = tk.Label(win, text="Histogram", bg="#0D379B", fg="white")
-    histogramLabel.pack()
-    histogramLabel.place(x=115, y=475)
-    f = Figure(figsize=(5, 4), dpi=40)
-    canvas = FigureCanvasTkAgg(f, master=win)
-    canvas.get_tk_widget().pack()
-    canvas.get_tk_widget().place(x=45, y=507)
-    p = f.gca()
-    hist = np.array(histogram, dtype=np.float32).flatten()
-    p.hist(hist, 3000)
-    canvas.draw()
+    # histogramLabel = tk.Label(win, text="Histogram", bg="#0D379B", fg="white")
+    # histogramLabel.pack()
+    # histogramLabel.place(x=115, y=475)
+    # f = Figure(figsize=(5, 4), dpi=40)
+    # canvas = FigureCanvasTkAgg(f, master=win)
+    # canvas.get_tk_widget().pack()
+    # canvas.get_tk_widget().place(x=45, y=507)
+    # p = f.gca()
+    # hist = np.array(histogram, dtype=np.float32).flatten()
+    # p.hist(hist, 3000)
+    # canvas.draw()
 
 
 def rgbtohex(r, g, b):

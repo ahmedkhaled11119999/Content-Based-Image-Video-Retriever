@@ -213,10 +213,13 @@ def search_by_video2(query_video_features, db_videos_features, feature='histogra
     for video_features in db_videos_features:
         similarity = compare_two_videos(query_video_features, video_features, feature)
         similar_video = {'similarity': similarity, 'name': video_features['name'], '_id': video_features['_id']}
+
+        _, ext = os.path.splitext(video_features['name'])
+        path = os.path.join(videos_base_path, f'{video_features.get("_id")}.{ext}')
+        similar_video['path'] = path
         similar_videos.append(similar_video)
     similar_videos.sort(key=lambda video: video.get('similarity'), reverse=True)
     return similar_videos
-
 
 if __name__ == '__main__':
 
