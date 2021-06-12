@@ -7,5 +7,5 @@
 4. run the file GUI.py
 
 ## add dataset:
-to add data set you can run the script `python features_calculator.py "path/to/images/dataset" "path/to/videos/dataset"`
+to add data set you can run the script `python features_calculator.py` and provide it with the dataset pathes
 this will take some time depending on the size of the dataset

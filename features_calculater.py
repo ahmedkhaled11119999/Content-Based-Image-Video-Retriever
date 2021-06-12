@@ -303,15 +303,14 @@ def test_search_by_video():
 
 
 if __name__ == '__main__':
-    print('please enter path to images dataset')
-    images_dataset_path = sys.argv[1]
 
+    images_dataset_path = input('please enter path to images dataset: ').strip()
     # images_dataset_path = "C:/Users/Legion/Desktop/images"
 
-    print('please enter path to videos dataset')
-    videos_dataset_path = sys.argv[2]
+    videos_dataset_path = input('please enter path to videos dataset: ').strip()
     # videos_dataset_path = "C:/Users/Legion/Desktop/vids"
 
-    add_images_dataset(images_dataset_path)
-
-    add_videos_dataset(videos_dataset_path)
+    if images_dataset_path:
+        add_images_dataset(images_dataset_path)
+    if videos_dataset_path:
+        add_videos_dataset(videos_dataset_path)

@@ -10,7 +10,7 @@ def extract_key_frames(video_path):
     :return: return list of opencv images
     """
     key_frames = []
-    frame_thresh_perc = 0.976  # adjustable
+    frame_thresh_perc = 0.94  # adjustable
     capture = cv.VideoCapture(video_path)
     frames_per_second = int(capture.get(cv.CAP_PROP_FPS))
     if (frames_per_second == 0):
@@ -18,7 +18,7 @@ def extract_key_frames(video_path):
 
     # Read the first frame.
     success, prev_frame = capture.read()
-
+    key_frames.append(prev_frame)
     while success:
         success, curr_frame = capture.read()
         if success:
