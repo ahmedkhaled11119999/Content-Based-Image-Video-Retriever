@@ -12,7 +12,7 @@ def extract_key_frames(video_path):
     :return: return list of opencv images
     """
     key_frames = []
-    frame_thresh = 2700000  # adjustable
+    frame_thresh_perc = 0.976  # adjustable
     capture = cv.VideoCapture(video_path)
     frames_per_second = int(capture.get(cv.CAP_PROP_FPS))
     if (frames_per_second == 0):
@@ -29,14 +29,16 @@ def extract_key_frames(video_path):
 
             diff = cv.absdiff(curr_frame, prev_frame)
             non_zero_count = np.count_nonzero(diff)
-            if non_zero_count > frame_thresh:
+
+            non_zero_perc = non_zero_count / diff.size
+            if non_zero_perc > frame_thresh_perc:
                 key_frames.append(curr_frame)
             prev_frame = curr_frame
 
     return key_frames
 
 
-#"Test extract_key_frames"
+# "Test extract_key_frames"
 
 
 def Test_extract_key_frames(video_path):
@@ -47,7 +49,6 @@ def Test_extract_key_frames(video_path):
     # for i in range(len(key_frames)):
     #     cv.imshow('key frame ' + str(i), key_frames[i])
     #     cv.waitKey(500)
-
 
 # video_path = 'C:/Users/Legion/Desktop/Maph.m4v'
 # Test_extract_key_frames(video_path)
