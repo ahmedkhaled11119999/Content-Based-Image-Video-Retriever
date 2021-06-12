@@ -36,7 +36,7 @@ def extract_key_frames(video_path):
     return key_frames
 
 
-"Test extract_key_frames"
+#"Test extract_key_frames"
 
 
 def Test_extract_key_frames(video_path):
@@ -44,10 +44,10 @@ def Test_extract_key_frames(video_path):
     print(len(key_frames))
     # print(key_frames)
 
-    for i in range(len(key_frames)):
-        cv.imshow('key frame ' + str(i), key_frames[i])
-        cv.waitKey(500)
+    # for i in range(len(key_frames)):
+    #     cv.imshow('key frame ' + str(i), key_frames[i])
+    #     cv.waitKey(500)
 
 
-video_path = 'F:/multimedia/project_work/Video.mp4'
-Test_extract_key_frames(video_path)
+# video_path = 'C:/Users/Legion/Desktop/Maph.m4v'
+# Test_extract_key_frames(video_path)
