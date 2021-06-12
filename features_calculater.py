@@ -95,6 +95,7 @@ def search_by_image(path):
     :param path:
     :return:
     """
+    print(path)
     return search_by_image_2(cv.imread(path))
 
 
@@ -106,6 +107,9 @@ def search_by_image_2(image):
         similar_image = compare_two_images(query_image_feature, image_features)
         similar_image['name'] = image_features['name']
         similar_image['_id'] = image_features['_id']
+        _, ext = os.path.splitext(image_features.get('name'))
+        path = os.path.join(images_base_path, f'{image_features.get("_id")}.{ext}')
+        similar_image['path'] = path
         similarity.append(similar_image)
     return similarity
 
@@ -215,35 +219,37 @@ def search_by_video2(query_video_features, db_videos_features, feature='histogra
 
 
 if __name__ == '__main__':
-    # images_dataset_path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/images"
-    # add_images_dataset(images_path)
 
-    # query_image_path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/images/267.jpg"
-    #
-    # similarity = search_by_image(
-    #     query_image_path)
-    #
-    # similarity = sort_by(similarity, 'histogram')
-    #
-    # for i, image in enumerate(similarity):
-    #     _, ext = os.path.splitext(image.get('name'))
-    #     name = f'{image.get("_id")}.{ext}'
-    #     path = os.path.join(images_base_path, name)
-    #     img = cv.imread(path)
-    #     cv.imshow(f'{i}, {image.get("histogram")}, {name}', img)
-    #     cv.waitKey(0)
+    # images_dataset_path = "C:/Users/Legion/Desktop/images"
+    # add_images_dataset(images_dataset_path)
 
-    # videos_dataset_path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/videos/"
+    query_image_path = "C:/Users/Legion/PycharmProjects/Content-Based-Image-Video-Retriever/DB/storage/images/60c40f1df6d82ab4651128b5..jpg"
+
+    similarity = search_by_image(
+        query_image_path)
+
+    similarity = sort_by(similarity, 'histogram')
+
+    for i, image in enumerate(similarity):
+        _, ext = os.path.splitext(image.get('name'))
+        name = f'{image.get("_id")}.{ext}'
+        # path = os.path.join(images_base_path, name)
+        path = image.get("path")
+        img = cv.imread(path)
+        cv.imshow(f'{i}, {image.get("histogram")}, {name}', img)
+        cv.waitKey(0)
+
+    # videos_dataset_path = "C:/Users/Legion/Desktop/vids"
     # add_videos_dataset(videos_dataset_path)
 
-    query_video_path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/videos/Blue Whales 101 _ Nat Geo Wild.mp4"
-
-    # query_video_features = calculate_video_features(query_video_path)
-    db_videos_features = get_saved_videos_features()
-    query_video_features = db_videos_features[0]
-
-    videos = search_by_video2(query_video_features, db_videos_features)
-
-    print(videos)
+    # query_video_path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/videos/Blue Whales 101 _ Nat Geo Wild.mp4"
+    #
+    # # query_video_features = calculate_video_features(query_video_path)
+    # db_videos_features = get_saved_videos_features()
+    # query_video_features = db_videos_features[0]
+    #
+    # videos = search_by_video2(query_video_features, db_videos_features)
+    #
+    # print(videos)
 
 

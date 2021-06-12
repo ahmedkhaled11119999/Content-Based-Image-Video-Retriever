@@ -9,7 +9,7 @@ from tkinter import Entry
 from tkinter import filedialog
 import tkinter as tk
 from PIL import ImageTk, Image
-from features_calculater import get_image_features
+from features_calculater import *
 import os
 
 
@@ -17,8 +17,11 @@ win = tk.Tk()
 var_selectedFeature = IntVar()
 var_ImgVid = IntVar()
 featureDict = {0: "", 1: "Average Color Similarity : ", 2: "Dominant Color Similarity : ", 3: "Histogram Similarity : ", 4: "Object Detection Similarity : "}
-featureLabel = tk.Label(win, text=featureDict.get(var_selectedFeature.get())+"0.55",
+featureLabel = tk.Label(win, text=featureDict.get(var_selectedFeature.get()),
                                   bg="#0D379B", fg="white")
+
+searchDict = {1: "average_color",2:"dominant_color",3:"histogram",4:"common_objects"}
+
 newImageLabel = tk.Label(win)
 videoLabel = tk.Label(win)
 openVideoButton = tk.Button(win)
@@ -40,6 +43,7 @@ imageIndex = 0
 videoIndex = 0
 imagePath = ""
 videoPath = ""
+images_search_result = []
 
 def nextImage():
     openVideoButton.destroy()
@@ -54,6 +58,7 @@ def nextImage():
     elif imageIndex == imagesNum:
         imageIndex = 0
     imagePath = searchImages[imageIndex]
+    updateFeatureLabel()
     image = Image.open(searchImages[imageIndex])
     image = image.resize((250, 250), Image.ANTIALIAS)
     image = ImageTk.PhotoImage(image)
@@ -98,6 +103,7 @@ def previousImage():
     elif imageIndex <= imagesNum:
         imageIndex -= 1
     imagePath = searchImages[imageIndex]
+    updateFeatureLabel()
     image = Image.open(searchImages[imageIndex])
     image = image.resize((250, 250), Image.ANTIALIAS)
     image = ImageTk.PhotoImage(image)
@@ -159,6 +165,7 @@ def primarySearch():
     global videoLabel
     global newImageLabel
     global openVideoButton
+    global images_search_result
     if var_selectedFeature.get() == 0:
         tk.messagebox.showwarning(title="Warning", message="Please choose any feature to filter with.")
     else:
@@ -170,9 +177,15 @@ def primarySearch():
             global imagePath
             openVideoButton.destroy()
             videoLabel.destroy()
-            #Todo: remove glob and initialize searchImages with similarities
-            for img in glob.glob("C:/Users/Legion/Desktop/*.png"):
-                searchImages.append(img)
+            print("###########",imagePath)
+            images_search_result = search_by_image(imagePath)
+            images_search_result = sort_by(images_search_result,searchDict.get(var_selectedFeature.get()))
+            for record in images_search_result:
+                path = record.get("path")
+                path = os.path.abspath(path)
+                searchImages.append(path)
+            # for record in search_result:
+            #     searchImages.append(img)
             # to be changed with network image
             imagePath = searchImages[imageIndex]
             image = Image.open(searchImages[imageIndex])
@@ -247,8 +260,9 @@ def search():
     updateFeatureLabel()
 
 def updateFeatureLabel():
+    similarity = images_search_result[imageIndex].get(searchDict.get(var_selectedFeature.get()))
     featureLabel.pack_forget()
-    featureLabel.config(text=featureDict.get(var_selectedFeature.get())+"0.55")
+    featureLabel.config(text=featureDict.get(var_selectedFeature.get())+str(similarity))
 
 
 def selectFileType():
@@ -274,6 +288,7 @@ def selectFileType():
 
 
 def openImage():
+    global  imagePath
     filename = filedialog.askopenfilename()
     if (len(Entry.get(fileEntryTextField))):
         fileEntryTextField.delete(0, END)
@@ -284,7 +299,7 @@ def openImage():
         photo_label1.place(bordermode=INSIDE, x=110, y=100)
         # Select the Imagename from a folder
         x = fileEntryTextField.get()
-
+        imagePath = x
         # opens the image
         img = Image.open(x)
 
@@ -302,8 +317,9 @@ def openImage():
         panel.pack()
         panel.place(x=30, y=130)
         features = get_image_features(x)
+        print(features)
         show_search()
-        show_features(features['avg_color'], features['dominate_color'])
+        show_features(features['avg_color'], features['dominant_color'],features['histogram'])
 
 
 def openVid():
@@ -329,7 +345,7 @@ def openVid():
         show_search()
         show_features(x, y)
 
-def show_features(avg, dom):
+def show_features(avg, dom,histogram):
     Average_color = rgbtohex(avg[0], avg[1], avg[2])
     average_label1 = tk.Label(win, text="Average Color", bg="#0D379B", fg="white")
     average_label1.pack()
@@ -354,9 +370,8 @@ def show_features(avg, dom):
     canvas.get_tk_widget().pack()
     canvas.get_tk_widget().place(x=45, y=507)
     p = f.gca()
-    #todo: Add histogram values in the below x variable
-    x = np.random.normal(256, 1, 5000)
-    p.hist(x, 256)
+    hist = np.array(histogram, dtype=np.float32).flatten()
+    p.hist(hist, 3000)
     canvas.draw()
 
 
