@@ -31,7 +31,6 @@ def extract_key_frames(video_path):
             non_zero_count = np.count_nonzero(diff)
             if non_zero_count > frame_thresh:
                 key_frames.append(curr_frame)
-
             prev_frame = curr_frame
 
     return key_frames

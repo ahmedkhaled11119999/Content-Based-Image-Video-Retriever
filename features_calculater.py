@@ -83,6 +83,7 @@ def compare_two_images(image1_features, image2_features):
         'common_objects': list(common_objects)
     }
 
+
 def search_by_image(path):
     """
     Take an image and calculate the image features, and compare the precalculated images features in the db and return
@@ -96,7 +97,6 @@ def search_by_image(path):
 def search_by_image_2(image):
     similarity = []
     query_image_feature = calculate_image_features(image)
-    # images_features = db.get_all({'$not': {'name': None}})
     images_features = db.get_all_images({})
     for image_features in images_features:
         similar_image = compare_two_images(query_image_feature, image_features)
@@ -104,6 +104,7 @@ def search_by_image_2(image):
         similar_image['_id'] = image_features['_id']
         similarity.append(similar_image)
     return similarity
+
 
 def sort_by(similarity, feature):
     if feature == 'common_objects':
@@ -126,7 +127,6 @@ def add_images_dataset(dir_path):
         shutil.copy(entry.path, os.path.join(images_base_path, f'{inserted.inserted_id}.{ext}'))
 
 
-# def search_by_video()
 def calculate_video_features(path):
     """
     video data_structure:
@@ -160,7 +160,6 @@ def calculate_video_features(path):
     video_features = {
         'frames': frames_features
     }
-
     return video_features
 
 
@@ -177,26 +176,69 @@ def add_videos_dataset(dir_path):
         shutil.copy(entry.path, os.path.join(videos_base_path, f'{inserted.inserted_id}.{ext}'))
 
 
-if __name__ == '__main__':
-    path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/videos"
-    # add_dataset(path)
+def compare_two_videos(video1_features, video2_features, feature='histogram'):
+    """
+    compare video1 key frames with video 2 key frames and get the average similarity
+    :param feature:
+    :param video1_features:
+    :param video2_features:
+    :return:
+    """
+    similarity = 0
+    for video1_frame, video2_frame in zip(video1_features['frames'], video2_features['frames']):
+        similarity += compare_two_images(video1_frame, video2_frame)[feature]
+    return similarity / len(video1_features['frames'])
 
+
+def search_by_video(path, feature='histogram'):
+    query_video_features = calculate_video_features(path)
+    db_videos_features = get_saved_videos_features()
+    return search_by_video2(query_video_features, db_videos_features, feature)
+
+
+def get_saved_videos_features():
+    return db.get_all_videos()
+
+
+def search_by_video2(query_video_features, db_videos_features, feature='histogram'):
+    similar_videos = []
+    for video_features in db_videos_features:
+        similarity = compare_two_videos(query_video_features, video_features, feature)
+        similar_video = {'similarity': similarity, 'name': video_features['name'], '_id': video_features['_id']}
+        similar_videos.append(similar_video)
+    similar_videos.sort(key=lambda video: video.get('similarity'), reverse=True)
+    return similar_videos
+
+
+if __name__ == '__main__':
+    # images_dataset_path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/images"
+    # add_images_dataset(images_path)
+
+    # query_image_path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/images/267.jpg"
+    #
     # similarity = search_by_image(
-    #     "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/all dataset/862.jpg")
+    #     query_image_path)
     #
     # similarity = sort_by(similarity, 'histogram')
     #
     # for i, image in enumerate(similarity):
     #     _, ext = os.path.splitext(image.get('name'))
     #     name = f'{image.get("_id")}.{ext}'
-    #     path = os.path.join(base_path, name)
+    #     path = os.path.join(images_base_path, name)
     #     img = cv.imread(path)
     #     cv.imshow(f'{i}, {image.get("histogram")}, {name}', img)
-    #
     #     cv.waitKey(0)
 
-    add_videos_dataset(path)
-    # features = calculate_video_features(path)
-    #
-    # inserted = db.insert_key_frames(features)
-    # print(inserted)
+    # videos_dataset_path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/videos/"
+    # add_videos_dataset(videos_dataset_path)
+
+    query_video_path = "D:/Education/University/4thCSE/2nd/MultiMedia/Project/dataset/videos/Blue Whales 101 _ Nat Geo Wild.mp4"
+
+    query_video_features = calculate_video_features(query_video_path)
+    db_videos_features = get_saved_videos_features()
+
+    videos = search_by_video2(query_video_features, db_videos_features)
+
+    print(videos)
+
+
