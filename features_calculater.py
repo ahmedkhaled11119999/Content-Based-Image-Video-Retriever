@@ -36,19 +36,24 @@ def color_compare(color1, color2):
     return similarity
 
 
-def calculate_image_features(image):
+def calculate_image_features(image, ignore_dominant=False):
     """
     calculate the image features using the helper functions
+    :param ignore_dominant: dominant color takes long time to be calculated and it is not required for video, set this
+    to true if you want to ignore it when analyzing videos
     :param image:
     :return:
     """
     image_features = {
         'shape': (image.shape[0], image.shape[1]),
         'avg_color': calc_average(image).tolist(),
-        'dominant_color': calc_dominant(image).tolist(),
         'histogram': calc_hist_hsv(image),
         'objects': extract_objects(image)
     }
+    if ignore_dominant:
+        image_features['dominant_color'] = image_features['avg_color']
+    else:
+        image_features['dominant_color'] = calc_dominant(image).tolist()
     return image_features
 
 
@@ -72,7 +77,7 @@ def get_video_features(path):
     frames = extract_key_frames(path)
     frames_features = []
     for frame in frames:
-        features = calculate_image_features(frame)
+        features = calculate_image_features(frame, ignore_dominant=True)
         features['parent_video_path'] = path
         frames_features.append(features)
     return frames_features
@@ -193,7 +198,7 @@ def calculate_video_features(path):
     print(f'{len(key_frames)} key frames extracted')
     for i, key_frame in enumerate(key_frames):
         print(f'processing key frame: {i + 1} of {len(key_frames)}')
-        frame_features = calculate_image_features(key_frame)
+        frame_features = calculate_image_features(key_frame, ignore_dominant=True)
         frames_features.append(frame_features)
     video_features = {
         'frames': frames_features
